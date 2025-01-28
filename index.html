@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X (Twitter)</title>
+    <style>
+        /* Estilos globais */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1da1f2;
+            margin-bottom: 20px;
+        }
+
+        /* Caixa de postagem */
+        .post-box {
+            margin-bottom: 20px;
+        }
+
+        .post-box textarea {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        .post-box .character-counter {
+            text-align: right;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .post-box .character-counter.warning {
+            color: #ff9800;
+        }
+
+        .post-box .character-counter.error {
+            color: #f44336;
+        }
+
+        .post-box button {
+            margin-top: 10px;
+            width: 100%;
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .post-box button:hover {
+            background-color: #0d8dd9;
+        }
+
+        /* Lista de publicações */
+        .post-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .post-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .post-date {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .post-content {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .post-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #1da1f2;
+            transition: transform 0.2s;
+        }
+
+        .post-actions button:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> X</h1>
+
+        <div class="post-box">
+            <textarea id="postInput" rows="3" placeholder="O que está acontecendo?"></textarea>
+            <div class="character-counter" id="charCounter">280 caracteres restantes</div>
+            <button id="postButton" disabled>Postar</button>
+        </div>
+
+        <ul class="post-list" id="postList">
+            <!-- Publicações aparecerão aqui -->
+        </ul>
+    </div>
+
+    <script>
+        const postInput = document.getElementById("postInput");
+        const charCounter = document.getElementById("charCounter");
+        const postButton = document.getElementById("postButton");
+        const postList = document.getElementById("postList");
+
+        const maxChars = 280;
+
+        postInput.addEventListener("input", () => {
+            const remaining = maxChars - postInput.value.length;
+            charCounter.textContent = `${remaining} caracteres restantes`;
+
+            if (remaining < 20 && remaining > 0) {
+                charCounter.className = "character-counter warning";
+            } else if (remaining <= 0) {
+                charCounter.className = "character-counter error";
+                postInput.value = postInput.value.substring(0, maxChars);
+            } else {
+                charCounter.className = "character-counter";
+            }
+
+            postButton.disabled = postInput.value.trim().length === 0;
+        });
+
+        postButton.addEventListener("click", () => {
+            const postContent = postInput.value.trim();
+            if (!postContent) return;
+
+            const postItem = document.createElement("li");
+            postItem.className = "post-item";
+            postItem.innerHTML = `
+                <div class="post-header">@usuario <span class="post-date">${new Date().toLocaleString()}</span></div>
+                <div class="post-content">${postContent}</div>
+                <div class="post-actions">
+                    <button class="like-button">
+                        <span>&hearts;</span> <span class="like-count">0</span>
+                    </button>
+                </div>
+            `;
+
+            const likeButton = postItem.querySelector(".like-button");
+            const likeCount = postItem.querySelector(".like-count");
+            let likes = 0;
+
+            likeButton.addEventListener("click", () => {
+                likes = likes === 0 ? 1 : 0;
+                likeCount.textContent = likes;
+                likeButton.style.transform = likes ? "scale(1.2)" : "scale(1)";
+                setTimeout(() => likeButton.style.transform = "scale(1)", 200);
+            });
+
+            postList.prepend(postItem);
+            postInput.value = "";
+            charCounter.textContent = `${maxChars} caracteres restantes`;
+            charCounter.className = "character-counter";
+            postButton.disabled = true;
+        });
+    </script>
+</body>
+</html>
