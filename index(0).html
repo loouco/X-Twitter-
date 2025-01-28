@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twitter Timeline Clone</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #f5f8fa;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border: 1px solid #e1e8ed;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .post-box {
+      padding: 20px;
+      border-bottom: 1px solid #e1e8ed;
+    }
+    .post-box textarea {
+      width: 100%;
+      height: 80px;
+      border: 1px solid #e1e8ed;
+      border-radius: 5px;
+      padding: 10px;
+      resize: none;
+      outline: none;
+    }
+    .post-box .character-count {
+      text-align: right;
+      font-size: 14px;
+      margin-top: 5px;
+      color: #657786;
+    }
+    .post-box .character-count.warning {
+      color: #e0245e;
+    }
+    .post-box button {
+      background-color: #1da1f2;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      float: right;
+    }
+    .post-box button:disabled {
+      background-color: #a2d0f5;
+      cursor: not-allowed;
+    }
+    .timeline {
+      list-style: none;
+      padding: 0;
+    }
+    .timeline li {
+      padding: 20px;
+      border-bottom: 1px solid #e1e8ed;
+      display: flex;
+      flex-direction: column;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    .timeline li .post-header {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .timeline li .post-date {
+      font-size: 12px;
+      color: #657786;
+      margin-bottom: 10px;
+    }
+    .timeline li .post-content {
+      margin-bottom: 10px;
+    }
+    .timeline li .post-actions {
+      display: flex;
+      align-items: center;
+    }
+    .timeline li .post-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #657786;
+      font-size: 16px;
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+    }
+    .timeline li .post-actions button .icon {
+      font-size: 20px;
+      margin-right: 5px;
+      transition: transform 0.2s ease-in-out;
+    }
+    .timeline li .post-actions button.liked .icon {
+      color: #e0245e;
+      transform: scale(1.2);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    .container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background-color: #ffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.new-tweet {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+  </style>
+</head>
+<body>
+    <header>
+            <h1 style="color:#1DA1F2">Twitter</h1>
+            </h1>
+        </header>
+  <div class="container">
+    <div class="post-box">
+      <textarea id="post-input" placeholder="What's happening?"></textarea>
+      <div class="character-count" id="char-count">280</div>
+      <button id="post-button" disabled>Tweet</button>
+    </div>
+    <ul class="timeline" id="timeline"></ul>
+      
+       <div class="post">
+      <h2>Publicação</h2>
+           <div>
+      <h3>Você sabia?</h3>
+      <p></p>
+      <div class="post-box">
+        <button id="like-btn">Curtir</button>
+        <span id="like-count">0 curtidas</span>
+      </div> 
+      </div>
+      <div class="comments">
+        <h3>Comentários</h3>
+        <ul id="comment-list"></ul>
+        <textarea id="comment-input" placeholder="Escreva um comentário..."></textarea>
+        <button id="add-comment-btn">Comentar</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    const postInput = document.getElementById('post-input');
+    const charCount = document.getElementById('char-count');
+    const postButton = document.getElementById('post-button');
+    const timeline = document.getElementById('timeline');
+    const maxChars = 280;
+
+    postInput.addEventListener('input', () => {
+      const remaining = maxChars - postInput.value.length;
+      charCount.textContent = remaining;
+      if (remaining < 20) {
+        charCount.classList.add('warning');
+      } else {
+        charCount.classList.remove('warning');
+      }
+      postButton.disabled = remaining < 0 || postInput.value.trim() === '';
+    });
+
+    postButton.addEventListener('click', () => {
+      const postText = postInput.value.trim();
+      if (postText) {
+        const postElement = document.createElement('li');
+        postElement.innerHTML = `
+          <div class="post-header">User Name</div>
+          <div class="post-date">${new Date().toLocaleString()}</div>
+          <div class="post-content">${postText}</div>
+          <div class="post-actions">
+            <button class="like-btn">
+              <span class="icon">❤️</span> <span class="like-count">0</span>
+            </button>
+          </div>
+        `;
+        timeline.prepend(postElement);
+        postInput.value = '';
+        charCount.textContent = maxChars;
+        postButton.disabled = true;
+
+        const likeButton = postElement.querySelector('.like-btn');
+        likeButton.addEventListener('click', () => {
+          const likeCount = likeButton.querySelector('.like-count');
+          const isLiked = likeButton.classList.toggle('liked');
+          likeCount.textContent = parseInt(likeCount.textContent) + (isLiked ? 1 : -1);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
